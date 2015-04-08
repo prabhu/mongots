@@ -123,7 +123,7 @@ db.on('ready',function() {
 
 ## Streaming cursors
 
-As of `0.7.0` all cursors are a [readable stream](http://nodejs.org/api/stream.html#stream_readable_stream) of objects.
+All cursors are a [readable stream](http://nodejs.org/api/stream.html#stream_readable_stream) of objects.
 
 ``` js
 var JSONStream = require('JSONStream');
@@ -170,7 +170,7 @@ db.things.runCommand('count', function(err, res) {
 
 ## Bulk updates
 
-As of 0.15 mongots supports the Bulk updates introduced in mongodb 2.6. Here's an example of the usage
+Mongots supports the Bulk updates introduced in mongodb 2.6. Here's an example of the usage
 
 ```js
 var bulk = db.a.initializeOrderedBulkOp();
