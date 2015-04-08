@@ -1,5 +1,4 @@
-﻿declare function require(name: string);
-
+﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
 var once = require('once');
 var parse = require('parse-mongo-url');
 var mongodb = require('mongodb-core');

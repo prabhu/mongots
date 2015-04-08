@@ -6,3 +6,8 @@ bin
 .tscache
 *.baseDir.*
 *.njsproj
+src/index.js
+src/index.js.map
+src/lib/*.js
+src/lib/*.js.map
+*.sln

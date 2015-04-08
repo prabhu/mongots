@@ -8,7 +8,7 @@
     clean: ['dist'],
     ts: {
       default: {
-        src: ['src/index.ts', 'src/lib/**/*.ts', '!src/**/.baseDir.ts'],
+        src: ['src/index.ts', 'src/lib/**/*.ts', 'src/test_ts/**/*.ts', '!src/**/.baseDir.ts'],
         outDir: 'dist',
         options: {
           module: 'commonjs',

@@ -1,3 +1,4 @@
+/// <reference path="../../Scripts/typings/node/node.d.ts" />
 import Collection = require('./collection');
 declare class Database {
     private _getServer;

@@ -1,5 +1,4 @@
-﻿declare function require(name: string);
-
+﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
 import Collection = require('./collection');
 var mongoCore = require('mongodb-core');
 var bson = mongoCore.BSON;

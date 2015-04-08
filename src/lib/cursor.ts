@@ -1,4 +1,4 @@
-﻿declare function require(name: string);
+﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
 var util = require('util');
 var thunky = require('thunky');
 var Readable = require('readable-stream').Readable;

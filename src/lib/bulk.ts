@@ -1,4 +1,4 @@
-﻿declare function require(name: string);
+﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
 var mongodb = require('mongodb-core');
 var each = require('each-series');
 

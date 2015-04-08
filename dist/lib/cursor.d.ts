@@ -1,3 +1,4 @@
+/// <reference path="../../Scripts/typings/node/node.d.ts" />
 declare class Cursor {
     _opts: any;
     _get: any;

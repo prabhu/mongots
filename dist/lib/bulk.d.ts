@@ -1,3 +1,4 @@
+/// <reference path="../../Scripts/typings/node/node.d.ts" />
 declare class Bulk {
     private _colname;
     private _cmds;

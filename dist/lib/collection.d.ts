@@ -1,3 +1,4 @@
+/// <reference path="../../Scripts/typings/node/node.d.ts" />
 import Cursor = require('./cursor');
 import AggregationCursor = require('./aggregation-cursor');
 import Bulk = require('./bulk');
