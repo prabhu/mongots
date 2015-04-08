@@ -1,37 +1,39 @@
 /// <reference path="../../Scripts/typings/node/node.d.ts" />
-import Cursor = require('./cursor');
-import AggregationCursor = require('./aggregation-cursor');
-import Bulk = require('./bulk');
-declare class Collection {
-    private _name;
-    private _dbname;
-    private _getServer;
+/// <reference path="../../src/lib/interface/ITypes.d.ts" />
+/// <reference path="../../src/lib/interface/ICollection.d.ts" />
+/// <reference path="../../src/lib/interface/ICursor.d.ts" />
+/// <reference path="../../src/lib/interface/IAggregationCursor.d.ts" />
+/// <reference path="../../src/lib/interface/IBulk.d.ts" />
+declare class Collection implements ICollection {
+    name: string;
+    dbName: string;
+    _getServer: any;
     constructor(name: string, dbname: string, getServer: any);
-    _fullColName(): string;
-    find(query: any, projection?: any, cb?: any): Cursor;
-    findOne(query: any, projection: any, cb: any): any;
-    findAndModify(opts: any, cb: any): void;
-    count(query: any, cb: any): any;
-    distinct(field: any, query: any, cb: any): void;
-    insert(docOrDocs: any, cb: any): void;
-    update(query: any, update: any, opts: any, cb: any): any;
-    save(doc: any, cb: any): void;
-    remove(query: any, justOne: any, cb: any): any;
+    fullColName(): string;
+    find(query: any, projection?: any, cb?: CallbackType): ICursor;
+    findOne(query: any, projection?: any, cb?: CallbackType): any;
+    findAndModify(opts: any, cb: CallbackType): void;
+    count(query: any, cb?: CallbackType): any;
+    distinct(field: any, query: any, cb: CallbackType): void;
+    insert(docOrDocs: any, cb?: CallbackType): void;
+    update(query: any, update: any, opts: any, cb?: CallbackType): any;
+    save(doc: any, cb?: CallbackType): void;
+    remove(query: any, justOne: any, cb: CallbackType): any;
     drop(cb: any): void;
-    mapReduce(map: any, reduce: any, opts: any, cb: any): void;
-    runCommand(cmd: any, opts: any, cb?: any): any;
+    mapReduce(map: any, reduce: any, opts: any, cb: CallbackType): void;
+    runCommand(cmd: any, opts: any, cb?: CallbackType): any;
     toString(): string;
-    dropIndexes(cb: any): void;
-    dropIndex(index: any, cb: any): void;
-    createIndex(index: any, opts: any, cb: any): any;
-    ensureIndex(index: any, opts: any, cb: any): void;
-    getIndexes(cb: any): void;
-    reIndex(cb: any): void;
-    isCapped(cb: any): void;
-    stats(cb: any): void;
-    group(doc: any, cb: any): void;
-    aggregate(): AggregationCursor;
-    initializeOrderedBulkOp(): Bulk;
-    initializeUnorderedBulkOp(): Bulk;
+    dropIndexes(cb: CallbackType): void;
+    dropIndex(index: any, cb: CallbackType): void;
+    createIndex(index: any, opts: any, cb?: CallbackType): any;
+    ensureIndex(index: any, opts: any, cb: CallbackType): void;
+    getIndexes(cb: CallbackType): void;
+    reIndex(cb: CallbackType): void;
+    isCapped(cb: CallbackType): void;
+    stats(cb: CallbackType): void;
+    group(doc: any, cb: CallbackType): void;
+    aggregate(): IAggregationCursor;
+    initializeOrderedBulkOp(): IBulk;
+    initializeUnorderedBulkOp(): IBulk;
 }
 export = Collection;

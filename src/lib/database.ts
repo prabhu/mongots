@@ -1,5 +1,10 @@
 ﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
+/// <reference path='./interface/ITypes.d.ts' />
+/// <reference path='./interface/IDatabase.d.ts' />
+/// <reference path='./interface/ICollection.d.ts' />
+
 import Collection = require('./collection');
+
 var mongoCore = require('mongodb-core');
 var bson = mongoCore.BSON;
 var xtend = require('xtend');
@@ -8,14 +13,14 @@ var noop = function () {
   // ignore
 };
 
-class Database {
-  private _getServer;
-  private _dbname: string;
-  private ObjectId;
+class Database implements IDatabase {
+  _getServer;
+  dbName: string;
+  ObjectId;
 
   constructor(name: string, cols: Array<string>, onserver: any) {
     this._getServer = onserver;
-    this._dbname = name;
+    this.dbName = name;
 
     var self = this;
     this.ObjectId = bson.ObjectId;
@@ -33,7 +38,7 @@ class Database {
   }
 
   collection(colName: string): Collection {
-    return new Collection(colName, this._dbname, this._getServer);
+    return new Collection(colName, this.dbName, this._getServer);
   }
 
   close (cb: any) {
@@ -47,7 +52,7 @@ class Database {
     });
   }
 
-  runCommand(opts: any, cb?) {
+  runCommand(opts: any, cb?: CallbackType) {
     cb = cb || noop;
     if (typeof opts === 'string') {
       var tmp = opts;
@@ -58,14 +63,14 @@ class Database {
     var self = this;
     this._getServer(function (err, server) {
       if (err) return cb(err);
-      server.command(self._dbname + '.$cmd', opts, function (err, result) {
+      server.command(self.dbName + '.$cmd', opts, function (err, result) {
         if (err) return cb(err);
         cb(null, result.result);
       });
     });
   }
 
-  getCollectionNames(cb) {
+  getCollectionNames(cb: CallbackType) {
     this.collection('system.namespaces').find({ name: /^((?!\$).)*$/ }, function (err, cols) {
       if (err) return cb(err);
       cb(null, cols.map(function (col) {
@@ -74,7 +79,7 @@ class Database {
     });
   }
 
-  createCollection(name: string, opts, cb?) {
+  createCollection(name: string, opts, cb?: CallbackType) {
     if (typeof opts === 'function') return this.createCollection(name, {}, opts);
 
     var cmd = { create: name };
@@ -84,30 +89,30 @@ class Database {
     this.runCommand(cmd, cb);
   }
 
-  stats(scale, cb) {
+  stats(scale, cb: CallbackType) {
     if (typeof scale === 'function') return this.stats(1, scale);
     this.runCommand({ dbStats: 1, scale: scale }, cb);
   }
 
-  dropDatabase(cb) {
+  dropDatabase(cb: CallbackType) {
     this.runCommand('dropDatabase', cb);
   }
 
-  createUser(usr, cb) {
+  createUser(usr, cb: CallbackType) {
     var cmd = xtend({ createUser: usr.user }, usr);
     delete cmd.user;
     this.runCommand(cmd, cb);
   }
 
-  addUser(usr, cb) {
+  addUser(usr, cb: CallbackType) {
     this.createUser(usr, cb);
   }
 
-  dropUser(username: string, cb) {
+  dropUser(username: string, cb: CallbackType) {
     this.runCommand({ dropUser: username }, cb);
   }
 
-  removeUser(username: string, cb) {
+  removeUser(username: string, cb: CallbackType) {
     this.dropUser(username, cb);
   }
 
@@ -122,11 +127,11 @@ class Database {
       })
   }
 
-  getLastErrorObj(cb) {
+  getLastErrorObj(cb: CallbackType) {
     this.runCommand('getLastError', cb);
   }
 
-  getLastError(cb) {
+  getLastError(cb: CallbackType) {
     this.runCommand('getLastError', function (err, res) {
       if (err) return cb(err);
       cb(null, res.err);
@@ -134,7 +139,7 @@ class Database {
   }
 
   toString(): string {
-    return this._dbname;
+    return this.dbName;
   }
 };
 

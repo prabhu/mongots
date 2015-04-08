@@ -1,5 +1,7 @@
 /// <reference path="../../Scripts/typings/node/node.d.ts" />
-declare class Cursor {
+/// <reference path="../../src/lib/interface/ITypes.d.ts" />
+/// <reference path="../../src/lib/interface/ICursor.d.ts" />
+declare class Cursor implements ICursor {
     _opts: any;
     _get: any;
     destroy: any;

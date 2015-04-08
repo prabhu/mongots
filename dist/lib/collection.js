@@ -15,12 +15,12 @@ var indexName = function (index) {
 };
 var Collection = (function () {
     function Collection(name, dbname, getServer) {
-        this._name = name;
-        this._dbname = dbname;
+        this.name = name;
+        this.dbName = dbname;
         this._getServer = getServer;
     }
-    Collection.prototype._fullColName = function () {
-        return this._dbname + '.' + this._name;
+    Collection.prototype.fullColName = function () {
+        return this.dbName + '.' + this.name;
     };
     Collection.prototype.find = function (query, projection, cb) {
         if (typeof query === 'function')
@@ -31,7 +31,7 @@ var Collection = (function () {
             query: query,
             projection: projection,
             onserver: this._getServer,
-            fullCollectionName: this._fullColName()
+            fullCollectionName: this.fullColName()
         });
         if (cb) {
             cursor.toArray(cb);
@@ -44,6 +44,7 @@ var Collection = (function () {
             return this.findOne({}, null, query);
         if (typeof projection === 'function')
             return this.findOne(query, null, projection);
+        cb = cb || noop;
         this.find(query, projection).next(function (err, doc) {
             if (err)
                 return cb(err);
@@ -80,7 +81,7 @@ var Collection = (function () {
                 if (!docs[i]._id)
                     docs[i]._id = oid();
             }
-            server.insert(self._fullColName(), docs, writeOpts, function (err, res) {
+            server.insert(self.fullColName(), docs, writeOpts, function (err, res) {
                 if (err)
                     return cb(err);
                 cb(null, docOrDocs);
@@ -99,7 +100,7 @@ var Collection = (function () {
                 return cb(err);
             opts.q = query;
             opts.u = update;
-            server.update(self._fullColName(), [opts], writeOpts, function (err, res) {
+            server.update(self.fullColName(), [opts], writeOpts, function (err, res) {
                 if (err)
                     return cb(err);
                 cb(null, res.result);
@@ -128,7 +129,7 @@ var Collection = (function () {
         this._getServer(function (err, server) {
             if (err)
                 return cb(err);
-            server.remove(self._fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], writeOpts, function (err, res) {
+            server.remove(self.fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], writeOpts, function (err, res) {
                 if (err)
                     return cb(err);
                 cb(null, res.result);
@@ -152,14 +153,14 @@ var Collection = (function () {
         var self = this;
         opts = opts || {};
         var cmdObject = {};
-        cmdObject[cmd] = this._name;
+        cmdObject[cmd] = this.name;
         Object.keys(opts).forEach(function (key) {
             cmdObject[key] = opts[key];
         });
         this._getServer(function (err, server) {
             if (err)
                 return cb(err);
-            server.command(self._dbname + '.$cmd', cmdObject, function (err, result) {
+            server.command(self.dbName + '.$cmd', cmdObject, function (err, result) {
                 if (err)
                     return cb(err);
                 cb(null, result.result);
@@ -167,7 +168,7 @@ var Collection = (function () {
         });
     };
     Collection.prototype.toString = function () {
-        return this._name;
+        return this.name;
     };
     Collection.prototype.dropIndexes = function (cb) {
         this.runCommand('dropIndexes', { index: '*' }, cb);
@@ -189,10 +190,10 @@ var Collection = (function () {
     };
     Collection.prototype.getIndexes = function (cb) {
         var cursor = new Cursor({
-            query: { ns: this._fullColName() },
+            query: { ns: this.fullColName() },
             projection: {},
             onserver: this._getServer,
-            fullCollectionName: this._dbname + '.system.indexes'
+            fullCollectionName: this.dbName + '.system.indexes'
         });
         cursor.toArray(cb);
     };
@@ -201,10 +202,10 @@ var Collection = (function () {
     };
     Collection.prototype.isCapped = function (cb) {
         var cursor = new Cursor({
-            query: { name: this._fullColName() },
+            query: { name: this.fullColName() },
             projection: {},
             onserver: this._getServer,
-            fullCollectionName: this._dbname + '.system.namespaces'
+            fullCollectionName: this.dbName + '.system.namespaces'
         });
         cursor.toArray(function (err, cols) {
             if (err)
@@ -218,7 +219,7 @@ var Collection = (function () {
     Collection.prototype.group = function (doc, cb) {
         var cmd = {
             group: {
-                ns: this._name,
+                ns: this.name,
                 key: doc.key,
                 initial: doc.initial,
                 $reduce: new Code(doc.reduce.toString()),
@@ -240,7 +241,7 @@ var Collection = (function () {
         this._getServer(function (err, server) {
             if (err)
                 return cb(err);
-            server.command(self._dbname + '.$cmd', cmd, function (err, result) {
+            server.command(self.dbName + '.$cmd', cmd, function (err, result) {
                 if (err)
                     return cb(err);
                 cb(null, result.result.retval);
@@ -263,17 +264,17 @@ var Collection = (function () {
         }
         var strm = new AggregationCursor({
             onserver: this._getServer,
-            colName: this._name,
-            fullCollectionName: this._fullColName(),
+            colName: this.name,
+            fullCollectionName: this.fullColName(),
             pipeline: pipeline
         });
         return strm;
     };
     Collection.prototype.initializeOrderedBulkOp = function () {
-        return new Bulk(this._name, true, this._getServer, this._dbname);
+        return new Bulk(this.name, true, this._getServer, this.dbName);
     };
     Collection.prototype.initializeUnorderedBulkOp = function () {
-        return new Bulk(this._name, false, this._getServer, this._dbname);
+        return new Bulk(this.name, false, this._getServer, this.dbName);
     };
     return Collection;
 })();

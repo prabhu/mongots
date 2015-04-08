@@ -3,14 +3,14 @@ var toMongodbCore = require('to-mongodb-core');
 var parse = require('parse-mongo-url');
 var Database = require('./lib/database');
 var getTopology = require('./lib/get-topology');
-var getDbName = function (connString) {
+var getdbName = function (connString) {
     var config = parse(connString);
     return config.dbName;
 };
 var init = function (connString, cols) {
-    var dbname = null;
+    var dbName = null;
     if (typeof connString === 'string') {
-        dbname = getDbName(connString);
+        dbName = getdbName(connString);
         var onserver = thunky(function (cb) {
             getTopology(connString, function (err, topology) {
                 if (err) {
@@ -21,7 +21,7 @@ var init = function (connString, cols) {
         });
     }
     else {
-        dbname = connString._dbname;
+        dbName = connString.dbName;
         onserver = thunky(function (cb) {
             toMongodbCore(connString, function (err, server) {
                 if (err) {
@@ -33,7 +33,7 @@ var init = function (connString, cols) {
             });
         });
     }
-    var that = new Database(dbname, cols || [], onserver);
+    var that = new Database(dbName, cols || [], onserver);
     if (typeof Proxy !== 'undefined') {
         var p = Proxy.create({
             get: function (obj, prop) {

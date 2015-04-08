@@ -1,26 +1,28 @@
 ﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
+/// <reference path='./interface/ITypes.d.ts' />
+/// <reference path='./interface/ICursor.d.ts' />
 var util = require('util');
 var thunky = require('thunky');
 var Readable = require('readable-stream').Readable;
 
-class Cursor {
-  public _opts;
-  public _get;
-  public destroy;
-  public _read;
-  public next;
-  public rewind;
-  public toArray;
-  public map;
-  public query;
-  public limit;
-  public skip;
-  public batchSize;
-  public sort;
-  public count;
-  public size;
-  public explain;
-  public forEach;
+class Cursor implements ICursor {
+  _opts;
+  _get;
+  destroy;
+  _read;
+  next;
+  rewind;
+  toArray;
+  map;
+  query;
+  limit;
+  skip;
+  batchSize;
+  sort;
+  count;
+  size;
+  explain;
+  forEach;
 
   constructor(opts: any) {
     Readable.call(this, { objectMode: true, highWaterMark: 0 });
@@ -28,7 +30,7 @@ class Cursor {
     this._opts = opts;
     var onserver = this._opts.onserver;
 
-    this._get = thunky(function (cb) {
+    this._get = thunky(function (cb: CallbackType) {
       onserver(function (err, server) {
         if (err) return cb(err);
         cb(null, server.cursor(self._opts.fullCollectionName, {
@@ -50,7 +52,7 @@ class Cursor {
 
 util.inherits(Cursor, Readable);
 
-Cursor.prototype.next = function(cb) {
+Cursor.prototype.next = function(cb: CallbackType) {
   this._get(function(err, cursor) {
     if (err) return cb(err);
     cursor.next(cb);
@@ -59,7 +61,7 @@ Cursor.prototype.next = function(cb) {
   return this;
 };
 
-Cursor.prototype.rewind = function(cb) {
+Cursor.prototype.rewind = function(cb: CallbackType) {
   this._get(function(err, cursor) {
     if (err) return cb(err);
     cursor.rewind(cb);
@@ -68,7 +70,7 @@ Cursor.prototype.rewind = function(cb) {
   return this;
 };
 
-Cursor.prototype.toArray = function(cb) {
+Cursor.prototype.toArray = function(cb: CallbackType) {
   var array = [];
   var self = this;
 
@@ -84,7 +86,7 @@ Cursor.prototype.toArray = function(cb) {
   loop();
 };
 
-Cursor.prototype.map = function(mapfn, cb) {
+Cursor.prototype.map = function(mapfn, cb: CallbackType) {
   var array = [];
   var self = this;
 
@@ -117,31 +119,31 @@ Cursor.prototype.forEach = function(fn) {
   loop();
 };
 
-Cursor.prototype.limit = function(n, cb) {
+Cursor.prototype.limit = function(n, cb: CallbackType) {
   this._opts.limit = n;
   if (cb) return this.toArray(cb);
   return this;
 };
 
-Cursor.prototype.skip = function(n, cb) {
+Cursor.prototype.skip = function(n, cb: CallbackType) {
   this._opts.skip = n;
   if (cb) return this.toArray(cb);
   return this;
 };
 
-Cursor.prototype.batchSize = function(n, cb) {
+Cursor.prototype.batchSize = function(n, cb: CallbackType) {
   this._opts.batchSize = n;
   if (cb) return this.toArray(cb);
   return this;
 };
 
-Cursor.prototype.sort = function(sortObj, cb) {
+Cursor.prototype.sort = function(sortObj, cb: CallbackType) {
   this._opts.sort = sortObj;
   if (cb) return this.toArray(cb);
   return this;
 };
 
-Cursor.prototype.count = function(cb) {
+Cursor.prototype.count = function(cb: CallbackType) {
   var self = this;
   var onserver = this._opts.onserver;
   var dbname = this._opts.fullCollectionName.split('.')[0];
@@ -155,7 +157,7 @@ Cursor.prototype.count = function(cb) {
   });
 };
 
-Cursor.prototype.size = function(cb) {
+Cursor.prototype.size = function(cb: CallbackType) {
   var self = this;
 
   var onserver = this._opts.onserver;
@@ -179,7 +181,7 @@ Cursor.prototype.size = function(cb) {
   });
 };
 
-Cursor.prototype.explain = function(cb) {
+Cursor.prototype.explain = function(cb: CallbackType) {
   var q = this._opts.query || {};
   this._opts.query = {$query: q, $explain: 1};
   this.next(cb);

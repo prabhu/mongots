@@ -7,7 +7,7 @@ var noop = function () {
 var Database = (function () {
     function Database(name, cols, onserver) {
         this._getServer = onserver;
-        this._dbname = name;
+        this.dbName = name;
         var self = this;
         this.ObjectId = bson.ObjectId;
         cols.forEach(function (colName) {
@@ -21,7 +21,7 @@ var Database = (function () {
         });
     }
     Database.prototype.collection = function (colName) {
-        return new Collection(colName, this._dbname, this._getServer);
+        return new Collection(colName, this.dbName, this._getServer);
     };
     Database.prototype.close = function (cb) {
         cb = cb || noop;
@@ -44,7 +44,7 @@ var Database = (function () {
         this._getServer(function (err, server) {
             if (err)
                 return cb(err);
-            server.command(self._dbname + '.$cmd', opts, function (err, result) {
+            server.command(self.dbName + '.$cmd', opts, function (err, result) {
                 if (err)
                     return cb(err);
                 cb(null, result.result);
@@ -113,7 +113,7 @@ var Database = (function () {
         });
     };
     Database.prototype.toString = function () {
-        return this._dbname;
+        return this.dbName;
     };
     return Database;
 })();

@@ -8,54 +8,54 @@ var cmdkeys = {
 };
 var Bulk = (function () {
     function Bulk(colName, ordered, onserver, dbname) {
-        this._colname = colName;
-        this._cmds = [];
-        this._currCmd = null;
-        this._ordered = ordered;
+        this.colName = colName;
+        this.cmdList = [];
+        this.currCmd = null;
+        this.ordered = ordered;
         this._onserver = onserver;
-        this._dbname = dbname;
+        this.dbName = dbname;
     }
     Bulk.prototype.find = function (query) {
         var self = this;
         var removeFn = function (lim) {
-            if (!self._currCmd) {
-                self._currCmd = {
-                    delete: self._colname,
+            if (!self.currCmd) {
+                self.currCmd = {
+                    delete: self.colName,
                     deletes: [],
-                    ordered: self._ordered,
+                    ordered: self.ordered,
                     writeConcern: { w: 1 }
                 };
             }
-            if (!self._currCmd.delete) {
-                self._cmds.push(self._currCmd);
-                self._currCmd = {
-                    delete: self._colname,
+            if (!self.currCmd.delete) {
+                self.cmdList.push(self.currCmd);
+                self.currCmd = {
+                    delete: self.colName,
                     deletes: [],
-                    ordered: self._ordered,
+                    ordered: self.ordered,
                     writeConcern: { w: 1 }
                 };
             }
-            self._currCmd.deletes.push({ q: query, limit: lim });
+            self.currCmd.deletes.push({ q: query, limit: lim });
         };
         var updateFn = function (updObj, multi) {
-            if (!self._currCmd) {
-                self._currCmd = {
-                    update: self._colname,
+            if (!self.currCmd) {
+                self.currCmd = {
+                    update: self.colName,
                     updates: [],
-                    ordered: self._ordered,
+                    ordered: self.ordered,
                     writeConcern: { w: 1 }
                 };
             }
-            if (!self._currCmd.update) {
-                self._cmds.push(self._currCmd);
-                self._currCmd = {
-                    update: self._colname,
+            if (!self.currCmd.update) {
+                self.cmdList.push(self.currCmd);
+                self.currCmd = {
+                    update: self.colName,
                     updates: [],
-                    ordered: self._ordered,
+                    ordered: self.ordered,
                     writeConcern: { w: 1 }
                 };
             }
-            self._currCmd.updates.push({ q: query, u: updObj, multi: multi, upsert: false });
+            self.currCmd.updates.push({ q: query, u: updObj, multi: multi, upsert: false });
         };
         var findobj = {
             remove: function () {
@@ -74,36 +74,36 @@ var Bulk = (function () {
         return findobj;
     };
     Bulk.prototype.insert = function (doc) {
-        if (!this._currCmd) {
-            this._currCmd = {
-                insert: this._colname,
+        if (!this.currCmd) {
+            this.currCmd = {
+                insert: this.colName,
                 documents: [],
-                ordered: this._ordered,
+                ordered: this.ordered,
                 writeConcern: { w: 1 }
             };
         }
-        if (!this._currCmd.insert) {
-            this._cmds.push(this._currCmd);
-            this._currCmd = {
-                insert: this._colname,
+        if (!this.currCmd.insert) {
+            this.cmdList.push(this.currCmd);
+            this.currCmd = {
+                insert: this.colName,
                 documents: [],
-                ordered: this._ordered,
+                ordered: this.ordered,
                 writeConcern: { w: 1 }
             };
         }
         if (!doc._id) {
             doc._id = oid();
         }
-        this._currCmd.documents.push(doc);
+        this.currCmd.documents.push(doc);
     };
     Bulk.prototype.tojson = function () {
         var obj = {
             nInsertOps: 0,
             nUpdateOps: 0,
             nRemoveOps: 0,
-            nBatches: this._cmds.length
+            nBatches: this.cmdList.length
         };
-        this._cmds.forEach(function (cmd) {
+        this.cmdList.forEach(function (cmd) {
             if (cmd.update) {
                 obj.nUpdateOps += cmd.updates.length;
             }
@@ -129,13 +129,13 @@ var Bulk = (function () {
             upserted: [],
             ok: 0
         };
-        this._cmds.push(this._currCmd);
+        this.cmdList.push(this.currCmd);
         this._onserver(function (err, server) {
             if (err) {
                 return cb(err);
             }
-            each(self._cmds, function (cmd, i, done) {
-                server.command(self._dbname + '.$cmd', cmd, function (err, res) {
+            each(self.cmdList, function (cmd, i, done) {
+                server.command(self.dbName + '.$cmd', cmd, function (err, res) {
                     if (err)
                         return done(err);
                     result[cmdkeys[Object.keys(cmd)[0]]] += res.result.n;

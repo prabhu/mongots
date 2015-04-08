@@ -1,4 +1,10 @@
 ﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
+/// <reference path='./interface/ITypes.d.ts' />
+/// <reference path='./interface/ICollection.d.ts' />
+/// <reference path='./interface/ICursor.d.ts' />
+/// <reference path='./interface/IAggregationCursor.d.ts' />
+/// <reference path='./interface/IBulk.d.ts' />
+
 var mongodb = require('mongodb-core');
 var once = require('once');
 import Cursor = require('./cursor');
@@ -18,22 +24,22 @@ var indexName = function (index: number): string {
   }).join('_');
 };
 
-class Collection {
-  private _name: string;
-  private _dbname: string;
-  private _getServer: any;
+class Collection implements ICollection {
+  name: string;
+  dbName: string;
+  _getServer: any;
 
   constructor(name: string, dbname: string, getServer: any) {
-    this._name = name;
-    this._dbname = dbname;
+    this.name = name;
+    this.dbName = dbname;
     this._getServer = getServer;
   }
 
-  _fullColName(): string {
-    return this._dbname + '.' + this._name;
+  fullColName(): string {
+    return this.dbName + '.' + this.name;
   }
 
-  find(query, projection?, cb?): Cursor {
+  find(query, projection?, cb?: CallbackType): ICursor {
     if (typeof query === 'function') return this.find({}, null, query);
     if (typeof projection === 'function') return this.find(query, null, projection);
 
@@ -41,7 +47,7 @@ class Collection {
       query: query,
       projection: projection,
       onserver: this._getServer,
-      fullCollectionName: this._fullColName()
+      fullCollectionName: this.fullColName()
     });
 
     if (cb) {
@@ -51,35 +57,36 @@ class Collection {
     return cursor;
   }
 
-  findOne(query, projection, cb) {
+  findOne(query, projection?, cb?: CallbackType) {
     if (typeof query === 'function') return this.findOne({}, null, query);
     if (typeof projection === 'function') return this.findOne(query, null, projection);
+    cb = cb || noop;
     this.find(query, projection).next(function (err, doc) {
       if (err) return cb(err);
       cb(null, doc);
     });
   }
 
-  findAndModify(opts, cb) {
+  findAndModify(opts, cb: CallbackType) {
     this.runCommand('findAndModify', opts, function (err, result) {
       if (err) return cb(err);
       cb(null, result.value, result.lastErrorObject || { n: 0 });
     });
   }
 
-  count(query, cb) {
+  count(query, cb?: CallbackType) {
     if (typeof query === 'function') return this.count({}, query);
     this.find(query).count(cb);
   }
 
-  distinct(field, query, cb) {
+  distinct(field, query, cb: CallbackType) {
     this.runCommand('distinct', { key: field, query: query }, function (err, result) {
       if (err) return cb(err);
       cb(null, result.values);
     });
   }
 
-  insert(docOrDocs, cb) {
+  insert(docOrDocs, cb?: CallbackType) {
     cb = cb || noop;
     var self = this;
     this._getServer(function (err, server) {
@@ -89,14 +96,14 @@ class Collection {
       for (var i = 0; i < docs.length; i++) {
         if (!docs[i]._id) docs[i]._id = oid();
       }
-      server.insert(self._fullColName(), docs, writeOpts, function (err, res) {
+      server.insert(self.fullColName(), docs, writeOpts, function (err, res) {
         if (err) return cb(err);
         cb(null, docOrDocs);
       });
     });
   }
 
-  update(query, update, opts, cb) {
+  update(query, update, opts, cb?: CallbackType) {
     if (!opts && !cb) return this.update(query, update, {}, noop);
     if (typeof opts === 'function') return this.update(query, update, {}, opts);
 
@@ -107,14 +114,14 @@ class Collection {
 
       opts.q = query;
       opts.u = update;
-      server.update(self._fullColName(), [opts], writeOpts, function (err, res) {
+      server.update(self.fullColName(), [opts], writeOpts, function (err, res) {
         if (err) return cb(err);
         cb(null, res.result);
       });
     });
   }
 
-  save(doc, cb) {
+  save(doc, cb?: CallbackType) {
     cb = cb || noop;
     if (doc._id) {
       this.update({ _id: doc._id }, doc, { upsert: true }, function (err, result) {
@@ -126,14 +133,14 @@ class Collection {
     }
   }
 
-  remove(query, justOne, cb) {
+  remove(query, justOne, cb: CallbackType) {
     if (typeof query === 'function') return this.remove({}, false, query);
     if (typeof justOne === 'function') return this.remove(query, false, justOne);
 
     var self = this;
     this._getServer(function (err, server) {
       if (err) return cb(err);
-      server.remove(self._fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], writeOpts, function (err, res) {
+      server.remove(self.fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], writeOpts, function (err, res) {
         if (err) return cb(err);
         cb(null, res.result)
       });
@@ -144,7 +151,7 @@ class Collection {
     this.runCommand('drop', cb);
   }
 
-  mapReduce(map, reduce, opts, cb) {
+  mapReduce(map, reduce, opts, cb: CallbackType) {
     this.runCommand('mapReduce', {
       map: map.toString(),
       reduce: reduce.toString(),
@@ -153,19 +160,19 @@ class Collection {
     }, cb);
   }
 
-  runCommand(cmd, opts, cb?) {
+  runCommand(cmd, opts, cb?: CallbackType) {
     if (typeof opts === 'function') return this.runCommand(cmd, null, opts);
     var self = this;
     opts = opts || {};
 
     var cmdObject = {};
-    cmdObject[cmd] = this._name;
+    cmdObject[cmd] = this.name;
     Object.keys(opts).forEach(function (key) {
       cmdObject[key] = opts[key];
     });
     this._getServer(function (err, server) {
       if (err) return cb(err);
-      server.command(self._dbname + '.$cmd', cmdObject, function (err, result) {
+      server.command(self.dbName + '.$cmd', cmdObject, function (err, result) {
         if (err) return cb(err);
         cb(null, result.result);
       });
@@ -173,18 +180,18 @@ class Collection {
   }
 
   toString(): string {
-    return this._name;
+    return this.name;
   }
 
-  dropIndexes(cb) {
+  dropIndexes(cb: CallbackType) {
     this.runCommand('dropIndexes', { index: '*' }, cb);
   }
 
-  dropIndex(index, cb) {
+  dropIndex(index, cb: CallbackType) {
     this.runCommand('dropIndexes', { index: index }, cb);
   }
 
-  createIndex(index, opts, cb) {
+  createIndex(index, opts, cb?: CallbackType) {
     if (typeof opts === 'function') return this.createIndex(index, {}, opts);
     if (typeof opts === 'undefined') return this.createIndex(index, {}, noop);
     opts.name = indexName(index);
@@ -192,31 +199,31 @@ class Collection {
     this.runCommand('createIndexes', { indexes: [opts] }, cb);
   }
 
-  ensureIndex(index, opts, cb) {
+  ensureIndex(index, opts, cb: CallbackType) {
     this.createIndex(index, opts, cb);
   }
 
-  getIndexes(cb) {
+  getIndexes(cb: CallbackType) {
     var cursor = new Cursor({
-      query: { ns: this._fullColName() },
+      query: { ns: this.fullColName() },
       projection: {},
       onserver: this._getServer,
-      fullCollectionName: this._dbname + '.system.indexes'
+      fullCollectionName: this.dbName + '.system.indexes'
     });
 
     cursor.toArray(cb);
   }
 
-  reIndex(cb) {
+  reIndex(cb: CallbackType) {
     this.runCommand('reIndex', cb);
   }
 
-  isCapped(cb) {
+  isCapped(cb: CallbackType) {
     var cursor = new Cursor({
-      query: { name: this._fullColName() },
+      query: { name: this.fullColName() },
       projection: {},
       onserver: this._getServer,
-      fullCollectionName: this._dbname + '.system.namespaces'
+      fullCollectionName: this.dbName + '.system.namespaces'
     });
 
     cursor.toArray(function (err, cols) {
@@ -225,14 +232,14 @@ class Collection {
     });
   }
 
-  stats(cb) {
+  stats(cb: CallbackType) {
     this.runCommand('collStats', cb);
   }
 
-  group(doc, cb) {
+  group(doc, cb: CallbackType) {
     var cmd = {
       group: {
-        ns: this._name,
+        ns: this.name,
         key: doc.key,
         initial: doc.initial,
         $reduce: new Code(doc.reduce.toString()),
@@ -253,15 +260,15 @@ class Collection {
     var self = this;
     this._getServer(function (err, server) {
       if (err) return cb(err);
-      server.command(self._dbname + '.$cmd', cmd, function (err, result) {
+      server.command(self.dbName + '.$cmd', cmd, function (err, result) {
         if (err) return cb(err);
         cb(null, result.result.retval);
       });
     });
   }
 
-  aggregate(): AggregationCursor {
-    var cb;
+  aggregate(): IAggregationCursor {
+    var cb: CallbackType;
     var pipeline = Array.prototype.slice.call(arguments);
     if (typeof pipeline[pipeline.length - 1] === 'function') {
       cb = once(pipeline.pop());
@@ -276,20 +283,20 @@ class Collection {
     }
     var strm = new AggregationCursor({
       onserver: this._getServer,
-      colName: this._name,
-      fullCollectionName: this._fullColName(),
+      colName: this.name,
+      fullCollectionName: this.fullColName(),
       pipeline: pipeline
     });
 
     return strm;
   }
 
-  initializeOrderedBulkOp(): Bulk {
-    return new Bulk(this._name, true, this._getServer, this._dbname);
+  initializeOrderedBulkOp(): IBulk {
+    return new Bulk(this.name, true, this._getServer, this.dbName);
   }
 
-  initializeUnorderedBulkOp(): Bulk {
-    return new Bulk(this._name, false, this._getServer, this._dbname);
+  initializeUnorderedBulkOp(): IBulk {
+    return new Bulk(this.name, false, this._getServer, this.dbName);
   }
 
 }

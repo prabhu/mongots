@@ -1,0 +1,19 @@
+interface ICursor {
+  _opts;
+  _get;
+  destroy;
+  _read;
+  next;
+  rewind;
+  toArray;
+  map;
+  query;
+  limit;
+  skip;
+  batchSize;
+  sort;
+  count;
+  size;
+  explain;
+  forEach;
+}

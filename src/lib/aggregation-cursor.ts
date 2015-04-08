@@ -1,8 +1,9 @@
 ﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
+/// <reference path='./interface/IAggregationCursor.d.ts' />
 var thunky = require('thunky');
 import Cursor = require('./cursor');
 
-class AggregationCursor extends Cursor {
+class AggregationCursor extends Cursor implements IAggregationCursor {
 
   constructor(opts: any) {
     super(opts);
