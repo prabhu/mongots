@@ -2,6 +2,9 @@
 
 A [Typescript](http://www.typescriptlang.org/) driver for MongoDB converted from [mongojs](https://github.com/mafintosh/mongojs). It wraps [mongodb-core](https://github.com/christkv/mongodb-core).
 
+[![build status](https://secure.travis-ci.org/prabhu/mongots.png)](http://travis-ci.org/prabhu/mongots)
+[![Tips](https://img.shields.io/gratipay/prabhu.svg)](https://gratipay.com/prabhu)
+
 ## Motivation
 This is an attempt to produce a good quality node.js driver for MongoDB using the features provided by typescript. Currently, it does everything what mongojs does and passes all the existing test cases. This will be added to npm once the version is stable.
 
@@ -214,7 +217,7 @@ In the above example the `hackers` collection is enabled automagically (similar 
 
 ## Passing a DB to the constructor
 
-If you have an instance of mongots, you can pass this to the constructor and mongots will use the 
+If you have an instance of mongots, you can pass this to the constructor and mongots will use the
 existing connection of that instance instead of creating a new one.
 
 ```js
