@@ -19,10 +19,10 @@ interface ICollection {
   count(query, cb?: CallbackType);
   distinct(field, query, cb: CallbackType);
 
-  insert(docOrDocs, cb?: CallbackType);
-  update(query, update, opts, cb?: CallbackType);
-  save(doc, cb?: CallbackType);
-  remove(query, justOne, cb: CallbackType);
+  insert(docOrDocs, writeOpts?: InsertOptionsType, cb?: CallbackType);
+  update(query, update, opts?: UpdateOptionsType, cb?: CallbackType);
+  save(doc, writeOpts?: SaveOptionsType, cb?: CallbackType);
+  remove(query, justOne?: boolean, opts?: RemoveOptionsType, cb?: CallbackType);
 
   drop(cb);
   mapReduce(map, reduce, opts, cb: CallbackType);

@@ -15,10 +15,10 @@ declare class Collection implements ICollection {
     findAndModify(opts: any, cb: CallbackType): void;
     count(query: any, cb?: CallbackType): any;
     distinct(field: any, query: any, cb: CallbackType): void;
-    insert(docOrDocs: any, cb?: CallbackType): void;
-    update(query: any, update: any, opts: any, cb?: CallbackType): any;
-    save(doc: any, cb?: CallbackType): void;
-    remove(query: any, justOne: any, cb: CallbackType): any;
+    insert(docOrDocs: any, writeOpts?: InsertOptionsType, cb?: CallbackType): any;
+    update(query: any, update: any, opts?: UpdateOptionsType, cb?: CallbackType): any;
+    save(doc: any, writeOpts?: SaveOptionsType, cb?: CallbackType): any;
+    remove(query: any, justOne?: boolean, opts?: RemoveOptionsType, cb?: CallbackType): any;
     drop(cb: any): void;
     mapReduce(map: any, reduce: any, opts: any, cb: CallbackType): void;
     runCommand(cmd: any, opts: any, cb?: CallbackType): any;

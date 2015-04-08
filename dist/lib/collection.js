@@ -3,7 +3,7 @@ var once = require('once');
 var Cursor = require('./cursor');
 var AggregationCursor = require('./aggregation-cursor');
 var Bulk = require('./bulk');
-var writeOpts = { writeConcern: { w: 1 }, ordered: true };
+var DEFAULT_WRITE_OPTS = { writeConcern: { w: 1 }, ordered: true };
 var noop = function () {
 };
 var oid = mongodb.BSON.ObjectID.createPk;
@@ -70,8 +70,13 @@ var Collection = (function () {
             cb(null, result.values);
         });
     };
-    Collection.prototype.insert = function (docOrDocs, cb) {
+    Collection.prototype.insert = function (docOrDocs, writeOpts, cb) {
         cb = cb || noop;
+        if (typeof writeOpts === 'function') {
+            var iopts = writeOpts;
+            return this.insert(docOrDocs, {}, iopts);
+        }
+        writeOpts = writeOpts || DEFAULT_WRITE_OPTS;
         var self = this;
         this._getServer(function (err, server) {
             if (err)
@@ -89,10 +94,13 @@ var Collection = (function () {
         });
     };
     Collection.prototype.update = function (query, update, opts, cb) {
-        if (!opts && !cb)
+        if (!opts && !cb) {
             return this.update(query, update, {}, noop);
-        if (typeof opts === 'function')
-            return this.update(query, update, {}, opts);
+        }
+        if (typeof opts === 'function') {
+            var popts = opts;
+            return this.update(query, update, {}, popts);
+        }
         cb = cb || noop;
         var self = this;
         this._getServer(function (err, server) {
@@ -100,15 +108,19 @@ var Collection = (function () {
                 return cb(err);
             opts.q = query;
             opts.u = update;
-            server.update(self.fullColName(), [opts], writeOpts, function (err, res) {
+            server.update(self.fullColName(), [opts], opts.writeConcern || DEFAULT_WRITE_OPTS, function (err, res) {
                 if (err)
                     return cb(err);
                 cb(null, res.result);
             });
         });
     };
-    Collection.prototype.save = function (doc, cb) {
+    Collection.prototype.save = function (doc, writeOpts, cb) {
         cb = cb || noop;
+        if (typeof writeOpts === 'function') {
+            var sopts = writeOpts;
+            return this.save(doc, {}, sopts);
+        }
         if (doc._id) {
             this.update({ _id: doc._id }, doc, { upsert: true }, function (err, result) {
                 if (err)
@@ -117,19 +129,27 @@ var Collection = (function () {
             });
         }
         else {
-            this.insert(doc, cb);
+            this.insert(doc, writeOpts, cb);
         }
     };
-    Collection.prototype.remove = function (query, justOne, cb) {
-        if (typeof query === 'function')
-            return this.remove({}, false, query);
-        if (typeof justOne === 'function')
-            return this.remove(query, false, justOne);
+    Collection.prototype.remove = function (query, justOne, opts, cb) {
+        if (typeof query === 'function') {
+            return this.remove({}, false, {}, query);
+        }
+        if (typeof justOne === 'function') {
+            var cbfn = justOne;
+            return this.remove(query, false, {}, cbfn);
+        }
+        if (typeof opts === 'function') {
+            var cbfn = opts;
+            return this.remove(query, justOne || false, {}, cbfn);
+        }
+        opts = opts || {};
         var self = this;
         this._getServer(function (err, server) {
             if (err)
                 return cb(err);
-            server.remove(self.fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], writeOpts, function (err, res) {
+            server.remove(self.fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], opts.writeConcern || DEFAULT_WRITE_OPTS, function (err, res) {
                 if (err)
                     return cb(err);
                 cb(null, res.result);

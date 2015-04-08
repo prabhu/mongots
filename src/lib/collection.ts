@@ -11,7 +11,7 @@ import Cursor = require('./cursor');
 import AggregationCursor = require('./aggregation-cursor');
 import Bulk = require('./bulk');
 
-var writeOpts = { writeConcern: { w: 1 }, ordered: true };
+var DEFAULT_WRITE_OPTS = { writeConcern: { w: 1 }, ordered: true };
 var noop = function () {
   // ignore
 };
@@ -86,8 +86,14 @@ class Collection implements ICollection {
     });
   }
 
-  insert(docOrDocs, cb?: CallbackType) {
+  insert(docOrDocs, writeOpts?: InsertOptionsType, cb?: CallbackType) {
     cb = cb || noop;
+    if (typeof writeOpts === 'function') {
+      // This type of re-assignment is required to satisfy typescript
+      var iopts: any = writeOpts;
+      return this.insert(docOrDocs, {}, iopts);
+    }
+    writeOpts = writeOpts || DEFAULT_WRITE_OPTS;
     var self = this;
     this._getServer(function (err, server) {
       if (err) return cb(err);
@@ -103,10 +109,15 @@ class Collection implements ICollection {
     });
   }
 
-  update(query, update, opts, cb?: CallbackType) {
-    if (!opts && !cb) return this.update(query, update, {}, noop);
-    if (typeof opts === 'function') return this.update(query, update, {}, opts);
-
+  update(query, update, opts?: UpdateOptionsType, cb?: CallbackType) {
+    if (!opts && !cb) {
+      return this.update(query, update, {}, noop);
+    }
+    if (typeof opts === 'function') {
+      // This type of re-assignment is required to satisfy typescript
+      var popts: any = opts;
+      return this.update(query, update, {}, popts);
+    }
     cb = cb || noop;
     var self = this;
     this._getServer(function (err, server) {
@@ -114,33 +125,47 @@ class Collection implements ICollection {
 
       opts.q = query;
       opts.u = update;
-      server.update(self.fullColName(), [opts], writeOpts, function (err, res) {
+      server.update(self.fullColName(), [opts], opts.writeConcern || DEFAULT_WRITE_OPTS, function (err, res) {
         if (err) return cb(err);
         cb(null, res.result);
       });
     });
   }
 
-  save(doc, cb?: CallbackType) {
+  save(doc, writeOpts?: SaveOptionsType, cb?: CallbackType) {
     cb = cb || noop;
+    if (typeof writeOpts === 'function') {
+      // This type of re-assignment is required to satisfy typescript
+      var sopts: any = writeOpts;
+      return this.save(doc, {}, sopts);
+    }
     if (doc._id) {
       this.update({ _id: doc._id }, doc, { upsert: true }, function (err, result) {
         if (err) return cb(err);
         cb(null, doc);
       });
     } else {
-      this.insert(doc, cb);
+      this.insert(doc, writeOpts, cb);
     }
   }
 
-  remove(query, justOne, cb: CallbackType) {
-    if (typeof query === 'function') return this.remove({}, false, query);
-    if (typeof justOne === 'function') return this.remove(query, false, justOne);
-
+  remove(query, justOne?: boolean, opts?: RemoveOptionsType, cb?: CallbackType) {
+    if (typeof query === 'function') {
+      return this.remove({}, false, {}, query);
+    }
+    if (typeof justOne === 'function') {
+      var cbfn: any = justOne;
+      return this.remove(query, false, {}, cbfn);
+    }
+    if (typeof opts === 'function') {
+      var cbfn: any = opts;
+      return this.remove(query, justOne || false, {}, cbfn);
+    }
+    opts = opts || {};
     var self = this;
     this._getServer(function (err, server) {
       if (err) return cb(err);
-      server.remove(self.fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], writeOpts, function (err, res) {
+      server.remove(self.fullColName(), [{ q: query, limit: justOne ? 1 : 0 }], opts.writeConcern || DEFAULT_WRITE_OPTS, function (err, res) {
         if (err) return cb(err);
         cb(null, res.result)
       });
