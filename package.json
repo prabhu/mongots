@@ -1,6 +1,6 @@
 {
   "name": "mongots",
-  "description": "Mongodb api using typescript based on Mongojs",
+  "description": "Mongodb api using typescript based on mongots",
   "keywords": [
     "mongo",
     "db",
@@ -25,13 +25,14 @@
     "test": "tape test/test-*.js; echo \"Harmony tests\"; node --harmony node_modules/tape/bin/tape test/test-*.js"
   },
   "devDependencies": {
-    "tape": "^3.5.0",
-    "concat-stream": "^1.4.7",
+    "concat-stream": "^1.4.8",
     "grunt": "~0.4.5",
-    "typescript": "~1.4.1",
-    "grunt-typescript": "~0.6.1",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-connect": "~0.10.1",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-contrib-connect": "~0.9.0",
-    "grunt-open": "~0.2.3"
+    "grunt-open": "~0.2.3",
+    "grunt-ts": "~4.0.1",
+    "tape": "^4.0.0",
+    "typescript": "~1.4.1"
   }
 }

@@ -1,6 +1,6 @@
 var test = require('./tape');
-var mongojs = require('../index');
-var db = mongojs('test', ['b.c']);
+var mongots = require('../dist/index');
+var db = mongots('test', ['b.c']);
 
 test('chained-collection-names', function(t) {
   db.b.c.remove(function() {

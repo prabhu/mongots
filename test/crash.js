@@ -1,5 +1,5 @@
-var mongojs = require('../index');
-var db = mongojs('localhost', ['test']);
+var mongots = require('../dist/index');
+var db = mongots('localhost', ['test']);
 
 db.test.findOne(function() {
   throw new Error('I should crash the program');

@@ -1,6 +1,6 @@
 var test = require('./tape');
-var mongojs = require('../index');
-var db = mongojs('test', ['a']);
+var mongots = require('../dist/index');
+var db = mongots('test', ['a']);
 
 module.exports = function(testName, docs, testFn) {
   test(testName, function(t) {

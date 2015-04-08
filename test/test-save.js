@@ -1,6 +1,6 @@
 var test = require('./tape');
-var mongojs = require('../index');
-var db = mongojs('test', ['a','b']);
+var mongots = require('../dist/index');
+var db = mongots('test', ['a','b']);
 
 test('save', function(t) {
   db.a.save({hello: "world"}, function(err, doc) {

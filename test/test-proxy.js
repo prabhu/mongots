@@ -1,6 +1,6 @@
 var test = require('./tape');
-var mongojs = require('../index');
-var db = mongojs('test');
+var mongots = require('../dist/index');
+var db = mongots('test');
 
 test('proxy', function(t) {
   if (typeof Proxy === 'undefined') return t.end();

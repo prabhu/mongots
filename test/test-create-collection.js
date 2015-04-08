@@ -1,6 +1,6 @@
 var test = require('./tape');
-var mongojs = require('../index');
-var db = mongojs('test', ['test123']);
+var mongots = require('../dist/index');
+var db = mongots('test', ['test123']);
 
 test('createCollection', function(t) {
   db.test123.drop(function() {

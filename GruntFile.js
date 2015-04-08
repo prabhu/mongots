@@ -1,26 +1,27 @@
 ﻿module.exports = function (grunt) {
-    grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    
-    grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
-        
-        typescript: {
-            base: {
-                src: ['lib/**/*.ts'],
-                dest: 'dist/mongots.js',
-                options: {
-                    module: 'amd',
-                    target: 'es5'
-                }
-            }
-        },
-        watch: {
-            files: '**/*.ts',
-            tasks: ['typescript']
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-ts');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+    clean: ['dist'],
+    ts: {
+      default: {
+        src: ['index.ts', 'lib/**/*.ts'],
+        outDir: 'dist',
+        options: {
+          module: 'commonjs',
+          target: 'es5',
+          verbose: true
         }
-    });
-    
-    grunt.registerTask('default', ['typescript']);
- 
+      }
+    },
+    watch: {
+      files: '**/*.ts',
+      tasks: ['ts']
+    }
+  });
+
+  grunt.registerTask('default', ['clean', 'ts']); 
 }

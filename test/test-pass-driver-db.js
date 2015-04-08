@@ -1,10 +1,10 @@
 var test = require('./tape');
-var mongojs = require('../');
+var mongots = require('../dist/index');
 var each = require('each-series');
 
-test('receive a driver db or mongojs instance', function(t) {
+test('receive a driver db or mongots instance', function(t) {
 
-  var db = mongojs(mongojs('test', []), ['a']);
+  var db = mongots(mongots('test', []), ['a']);
   var afterFind = function() {
     db.a.remove(function(err) {
       t.ok(!err);

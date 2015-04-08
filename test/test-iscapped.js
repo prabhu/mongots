@@ -1,6 +1,6 @@
 var test = require('./tape');
-var mongojs = require('../index');
-var db = mongojs('test', ['a', 'mycappedcol']);
+var mongots = require('../dist/index');
+var db = mongots('test', ['a', 'mycappedcol']);
 
 test('isCapped', function(t) {
   db.mycappedcol.drop(function(err) {
