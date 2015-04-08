@@ -162,6 +162,7 @@ class Collection implements ICollection {
       return this.remove(query, justOne || false, {}, cbfn);
     }
     opts = opts || {};
+    cb = cb || noop;
     var self = this;
     this._getServer(function (err, server) {
       if (err) return cb(err);
@@ -189,7 +190,6 @@ class Collection implements ICollection {
     if (typeof opts === 'function') return this.runCommand(cmd, null, opts);
     var self = this;
     opts = opts || {};
-
     var cmdObject = {};
     cmdObject[cmd] = this.name;
     Object.keys(opts).forEach(function (key) {
