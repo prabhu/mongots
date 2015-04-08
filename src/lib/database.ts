@@ -14,14 +14,13 @@ class Database {
   private _dbname: string;
   private ObjectId;
 
-  constructor(opts: any, onserver: any) {
+  constructor(name: string, cols: Array<string>, onserver: any) {
     this._getServer = onserver;
-    this._dbname = opts.name;
+    this._dbname = name;
 
     var self = this;
     this.ObjectId = bson.ObjectId;
-    opts.cols = opts.cols || [];
-    opts.cols.forEach(function (colName: string) {
+    cols.forEach(function (colName: string) {
       self[colName] = self.collection(colName);
       var parts = colName.split('.');
 
@@ -35,7 +34,7 @@ class Database {
   }
 
   collection(colName: string): Collection {
-    return new Collection({ name: colName, dbname: this._dbname }, this._getServer);
+    return new Collection(colName, this._dbname, this._getServer);
   }
 
   close (cb: any) {

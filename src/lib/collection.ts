@@ -23,9 +23,9 @@ class Collection {
   private _dbname: string;
   private _getServer: any;
 
-  constructor(opts: any, getServer: any) {
-    this._name = opts.name;
-    this._dbname = opts.dbname;
+  constructor(name: string, dbname: string, getServer: any) {
+    this._name = name;
+    this._dbname = dbname;
     this._getServer = getServer;
   }
 

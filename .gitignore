@@ -4,4 +4,5 @@ bin
 *.suo
 *.dat
 .tscache
-.baseDir.*
+*.baseDir.*
+*.njsproj

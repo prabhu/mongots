@@ -3,6 +3,7 @@ var mongoCore = require('mongodb-core');
 var bson = mongoCore.BSON;
 var xtend = require('xtend');
 var noop = function () {
+    // ignore
 };
 var Database = (function () {
     function Database(name, cols, onserver) {

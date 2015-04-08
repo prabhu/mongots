@@ -8,7 +8,7 @@ var Server = mongodb.Server;
 var ReplSet = mongodb.ReplSet;
 var MongoCR = mongodb.MongoCR;
 
-var init = function (connString: any, cb: any) {
+var init = function (connString: string, cb: any) {
   cb = once(cb);
   var config = parse(connString);
   var srv;

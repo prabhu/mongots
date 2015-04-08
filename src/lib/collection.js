@@ -5,6 +5,7 @@ var AggregationCursor = require('./aggregation-cursor');
 var Bulk = require('./bulk');
 var writeOpts = { writeConcern: { w: 1 }, ordered: true };
 var noop = function () {
+    // ignore
 };
 var oid = mongodb.BSON.ObjectID.createPk;
 var Code = mongodb.BSON.Code;

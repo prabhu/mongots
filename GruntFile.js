@@ -8,12 +8,13 @@
     clean: ['dist'],
     ts: {
       default: {
-        src: ['src/index.ts', 'src/lib/**/*.ts', '!src/.baseDir.ts'],
+        src: ['src/index.ts', 'src/lib/**/*.ts', '!src/**/.baseDir.ts'],
         outDir: 'dist',
         options: {
           module: 'commonjs',
           target: 'es5',
-          verbose: true
+          verbose: true,
+          declaration: true
         }
       }
     },
