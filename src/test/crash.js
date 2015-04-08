@@ -1,4 +1,4 @@
-var mongots = require('../dist/index');
+var mongots = require('../../dist/index');
 var db = mongots('localhost', ['test']);
 
 db.test.findOne(function() {

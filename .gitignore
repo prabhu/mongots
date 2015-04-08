@@ -1,11 +1,7 @@
 node_modules
-dist
 obj
-lib
 bin
 *.suo
 *.dat
-index.js
-lib/*.js
-lib/*.map
 .tscache
+.baseDir.*

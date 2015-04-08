@@ -1,5 +1,5 @@
 var test = require('./tape');
-var mongots = require('../dist/index');
+var mongots = require('../../dist/index');
 var each = require('each-series');
 
 test('receive a driver db or mongots instance', function(t) {

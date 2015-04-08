@@ -1,5 +1,5 @@
 var test = require('./tape');
-var mongots = require('../dist/index');
+var mongots = require('../../dist/index');
 var db = mongots('test', ['test123']);
 
 test('createCollection', function(t) {
