@@ -10,4 +10,6 @@ src/index.js
 src/index.js.map
 src/lib/*.js
 src/lib/*.js.map
+src/test_ts/*.js
+src/test_ts/*.js.map
 *.sln

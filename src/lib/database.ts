@@ -74,7 +74,7 @@ class Database {
     });
   }
 
-  createCollection(name: string, opts, cb) {
+  createCollection(name: string, opts, cb?) {
     if (typeof opts === 'function') return this.createCollection(name, {}, opts);
 
     var cmd = { create: name };

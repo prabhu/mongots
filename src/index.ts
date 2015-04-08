@@ -1,4 +1,5 @@
 ﻿/// <reference path='../Scripts/typings/node/node.d.ts' />
+declare var Proxy;
 var thunky = require('thunky');
 var toMongodbCore = require('to-mongodb-core');
 var parse = require('parse-mongo-url');
@@ -38,6 +39,17 @@ var init = function (connString: any, cols: Array<string>): Database {
   }
 
   var that = new Database(dbname, cols || [], onserver);
+  if (typeof Proxy !== 'undefined') {
+    var p = Proxy.create({
+      get: function (obj, prop) {
+        if (that[prop]) return that[prop];
+        that[prop] = that.collection(prop);
+        return that[prop];
+      }
+    });
+
+    return p;
+  };
   return that;
 };
 
