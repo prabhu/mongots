@@ -7,7 +7,7 @@ var parse = require('parse-mongo-url');
 import Database = require('./lib/database');
 var getTopology = require('./lib/get-topology');
 
-var getdbName = function (connString: string): string {  
+var getdbName = function (connString: string): string {
   var config = parse(connString);
   return config.dbName;
 };

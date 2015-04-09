@@ -19,6 +19,7 @@ declare class Cursor implements ICursor {
     size: any;
     explain: any;
     forEach: any;
+    maxTimeMS: any;
     constructor(opts: any);
 }
 export = Cursor;

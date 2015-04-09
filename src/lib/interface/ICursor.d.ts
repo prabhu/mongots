@@ -16,4 +16,5 @@ interface ICursor {
   size;
   explain;
   forEach;
+  maxTimeMS;
 }

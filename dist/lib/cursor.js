@@ -19,7 +19,8 @@ var Cursor = (function () {
                     skip: self._opts.skip,
                     limit: self._opts.limit,
                     batchSize: self._opts.batchSize,
-                    explain: self._opts.explain
+                    explain: self._opts.explain,
+                    maxTimeMS: self._opts.maxTimeMS
                 }));
             });
         });
@@ -118,10 +119,14 @@ Cursor.prototype.count = function (cb) {
     var onserver = this._opts.onserver;
     var dbname = this._opts.fullCollectionName.split('.')[0];
     var colname = this._opts.fullCollectionName.split('.')[1];
+    var cmd = { count: colname, query: self._opts.query };
+    if (this._opts.maxTimeMS) {
+        cmd.maxTimeMS = this._opts.maxTimeMS;
+    }
     onserver(function (err, server) {
         if (err)
             return cb(err);
-        server.command(dbname + '.$cmd', { count: colname, query: self._opts.query }, function (err, result) {
+        server.command(dbname + '.$cmd', cmd, function (err, result) {
             if (err)
                 return cb(err);
             cb(null, result.result.n);
@@ -136,16 +141,15 @@ Cursor.prototype.size = function (cb) {
     onserver(function (err, server) {
         if (err)
             return cb(err);
-        var cmd = { count: colname, query: null, limit: null, skip: null };
-        delete cmd.query;
-        delete cmd.limit;
-        delete cmd.skip;
+        var cmd = { count: colname };
         if (self._opts.query)
             cmd.query = self._opts.query;
         if (self._opts.limit)
             cmd.limit = self._opts.limit;
         if (self._opts.skip)
             cmd.skip = self._opts.skip;
+        if (self._opts.maxTimeMS)
+            cmd.maxTimeMS = self._opts.maxTimeMS;
         server.command(dbname + '.$cmd', cmd, function (err, result) {
             if (err)
                 return cb(err);
@@ -175,6 +179,12 @@ Cursor.prototype._read = function () {
             return self.emit('error', err);
         self.push(data);
     });
+};
+Cursor.prototype.maxTimeMS = function (maxTimeMS, cb) {
+    this._opts.maxTimeMS = maxTimeMS;
+    if (cb)
+        return this.toArray(cb);
+    return this;
 };
 module.exports = Cursor;
 //# sourceMappingURL=cursor.js.map

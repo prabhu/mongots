@@ -145,6 +145,7 @@ var Collection = (function () {
             return this.remove(query, justOne || false, {}, cbfn);
         }
         opts = opts || {};
+        cb = cb || noop;
         var self = this;
         this._getServer(function (err, server) {
             if (err)

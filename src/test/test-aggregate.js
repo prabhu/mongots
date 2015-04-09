@@ -11,7 +11,6 @@ insert('aggregate', [{
   name:'Lapras'  , type:'water'
 }], function(db, t, done) {
   db.a.aggregate({$group: {_id: '$type'}}, function(err, types) {
-    console.log(err, types);
     var arr = types.map(function(x) {return x._id});
     t.equal(types.length, 2);
     t.notEqual(arr.indexOf('fire'), -1);
