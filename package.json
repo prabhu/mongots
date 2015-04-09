@@ -23,7 +23,7 @@
     "xtend": "^4.0.0"
   },
   "scripts": {
-    "test": "tape src/test/test-*.js; echo \"Harmony tests\"; node --harmony node_modules/tape/bin/tape src/test/test-*.js"
+    "test": "node_modules/tape/bin/tape src/test/test-*.js; echo \"Harmony tests\"; node --harmony node_modules/tape/bin/tape src/test/test-*.js"
   },
   "main": "dist/index.js",
   "devDependencies": {
