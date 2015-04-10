@@ -1,4 +1,5 @@
 ﻿/// <reference path='../../Scripts/typings/node/node.d.ts' />
+/// <reference path='./interface/ITypes.d.ts' />
 var once = require('once');
 var parse = require('parse-mongo-url');
 var mongodb = require('mongodb-core');
@@ -7,7 +8,23 @@ var Server = mongodb.Server;
 var ReplSet = mongodb.ReplSet;
 var MongoCR = mongodb.MongoCR;
 
-var init = function (connString: string, cb: any) {
+var addOptions = function(opts, serverOptions) {
+  if (serverOptions && opts) {
+    for (var key in serverOptions) {
+      if (serverOptions.hasOwnProperty(key)) {
+        opts[key] = serverOptions[key];
+      }
+    }
+  }
+  return opts;
+}
+
+var init = function (connString: string, serverOptions?: ServerOptions | ReplicaOptions, cb?: any) {
+  if (typeof serverOptions === 'function') {
+    cb = serverOptions;
+    serverOptions = {};
+  }
+  serverOptions = serverOptions || {};
   cb = once(cb);
   var config = parse(connString);
   var srv;
@@ -18,12 +35,14 @@ var init = function (connString: string, cb: any) {
     opts.port = config.servers[0].port || 27017;
     opts.reconnect = true;
     opts.reconnectInterval = 50;
+    addOptions(opts, serverOptions);
     srv = new Server(opts);
   } else {
     var rsopts = config.rs_options;
     rsopts.setName = rsopts.rs_name;
     rsopts.reconnect = true;
     rsopts.reconnectInterval = 50;
+    addOptions(rsopts, serverOptions);
     srv = new ReplSet(config.servers, rsopts);
   }
 

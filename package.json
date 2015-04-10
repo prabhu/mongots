@@ -36,6 +36,7 @@
     "grunt-ts": "~4.0.1",
     "mocha": "^2.2.4",
     "tape": "^4.0.0",
-    "typescript": "~1.4.1"
+    "typescript": "~1.4.1",
+    "mongodb-tools": "~1.0"
   }
 }

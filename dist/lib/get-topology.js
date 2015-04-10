@@ -4,7 +4,22 @@ var mongodb = require('mongodb-core');
 var Server = mongodb.Server;
 var ReplSet = mongodb.ReplSet;
 var MongoCR = mongodb.MongoCR;
-var init = function (connString, cb) {
+var addOptions = function (opts, serverOptions) {
+    if (serverOptions && opts) {
+        for (var key in serverOptions) {
+            if (serverOptions.hasOwnProperty(key)) {
+                opts[key] = serverOptions[key];
+            }
+        }
+    }
+    return opts;
+};
+var init = function (connString, serverOptions, cb) {
+    if (typeof serverOptions === 'function') {
+        cb = serverOptions;
+        serverOptions = {};
+    }
+    serverOptions = serverOptions || {};
     cb = once(cb);
     var config = parse(connString);
     var srv;
@@ -14,6 +29,7 @@ var init = function (connString, cb) {
         opts.port = config.servers[0].port || 27017;
         opts.reconnect = true;
         opts.reconnectInterval = 50;
+        addOptions(opts, serverOptions);
         srv = new Server(opts);
     }
     else {
@@ -21,6 +37,7 @@ var init = function (connString, cb) {
         rsopts.setName = rsopts.rs_name;
         rsopts.reconnect = true;
         rsopts.reconnectInterval = 50;
+        addOptions(rsopts, serverOptions);
         srv = new ReplSet(config.servers, rsopts);
     }
     if (config.auth) {

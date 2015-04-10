@@ -7,12 +7,13 @@ var getdbName = function (connString) {
     var config = parse(connString);
     return config.dbName;
 };
-var init = function (connString, cols) {
+var init = function (connString, collections, options) {
     var dbName = null;
+    options = options || {};
     if (typeof connString === 'string') {
         dbName = getdbName(connString);
         var onserver = thunky(function (cb) {
-            getTopology(connString, function (err, topology) {
+            getTopology(connString, options, function (err, topology) {
                 if (err) {
                     return cb(err);
                 }
@@ -33,7 +34,7 @@ var init = function (connString, cols) {
             });
         });
     }
-    var that = new Database(dbName, cols || [], onserver);
+    var that = new Database(dbName, collections || [], onserver);
     if (typeof Proxy !== 'undefined') {
         var p = Proxy.create({
             get: function (obj, prop) {
